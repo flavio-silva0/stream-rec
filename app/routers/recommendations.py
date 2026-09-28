@@ -1,3 +1,4 @@
+from inspect import cleandoc
 from typing import Optional, Literal
 from fastapi import APIRouter, Query, Path, Response, HTTPException, status
 from app.models.schemas import RecommendationResponse
@@ -10,18 +11,18 @@ router = APIRouter(prefix="/recommendations", tags=["Recomendações"])
     "/{user_id}",
     response_model=RecommendationResponse,
     summary="Gerar recomendações personalizadas com Cache",
-    description="""
+    description=cleandoc("""
     Gera recomendações de filmes personalizadas para um determinado usuário com estratégia de Cache Redis (TTL):
-    
-    - **1ª Chamada (CACHE MISS)**: A consulta é executada no banco de grafos Neo4j (via Cypher), o resultado é serializado e armazenado no Redis com o TTL definido. O cabeçalho `X-Cache: MISS` é retornado.
-    - **Chamadas Seguintes (CACHE HIT)**: A recomendação é recuperada instantaneamente da memória do Redis. O cabeçalho `X-Cache: HIT` é retornado com o tempo restante do TTL.
-    
-    Estratégias disponíveis:
-    - `hybrid`: Combina Filtragem Colaborativa (usuários similares) + Afinidade por Gênero + Filmes em Alta (Padrão).
-    - `collaborative`: Recomendações baseadas em outros usuários que gostaram dos mesmos filmes que você.
-    - `genre`: Baseado nos gêneros mais consumidos e melhor avaliados pelo usuário.
-    - `trending`: Filmes populares mais bem avaliados no catálogo (ideal para novos usuários / Cold Start).
-    """
+
+    * **1ª Chamada (CACHE MISS)**: A consulta é executada no banco de grafos Neo4j (via Cypher), o resultado é serializado e armazenado no Redis com o TTL definido. O cabeçalho `X-Cache: MISS` é retornado.
+    * **Chamadas Seguintes (CACHE HIT)**: A recomendação é recuperada instantaneamente da memória do Redis. O cabeçalho `X-Cache: HIT` é retornado com o tempo restante do TTL.
+
+    **Estratégias disponíveis:**
+    * `hybrid`: Combina Filtragem Colaborativa (usuários similares) + Afinidade por Gênero + Filmes em Alta (Padrão).
+    * `collaborative`: Recomendações baseadas em outros usuários que gostaram dos mesmos filmes que você.
+    * `genre`: Baseado nos gêneros mais consumidos e melhor avaliados pelo usuário.
+    * `trending`: Filmes populares mais bem avaliados no catálogo (ideal para novos usuários / Cold Start).
+    """)
 )
 async def get_user_recommendations(
     response: Response,
