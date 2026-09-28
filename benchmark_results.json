@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-09-28 17:50:49",
+  "mode": "Transporte ASGI In-Process (App Direta)",
+  "cache_miss_neo4j": {
+    "count": 40,
+    "min_ms": 2.21,
+    "max_ms": 23.86,
+    "mean_ms": 3.29,
+    "median_ms": 2.61,
+    "p95_ms": 7.32,
+    "p99_ms": 23.86,
+    "std_dev": 3.43,
+    "throughput_rps": 303.75
+  },
+  "cache_hit_redis": {
+    "count": 100,
+    "min_ms": 1.95,
+    "max_ms": 25.39,
+    "mean_ms": 3.23,
+    "median_ms": 2.59,
+    "p95_ms": 5.67,
+    "p99_ms": 25.39,
+    "std_dev": 2.65,
+    "throughput_rps": 309.45
+  },
+  "comparison": {
+    "speedup_factor": "1.02x mais rápido",
+    "latency_reduction_pct": "1.82%",
+    "p95_speedup": "1.29x"
+  },
+  "redis_metrics": {
+    "is_connected": true,
+    "backend": "fakeredis_fallback",
+    "keys_count": 16,
+    "hit_count": 104,
+    "miss_count": 52,
+    "hit_rate_pct": 66.67,
+    "default_ttl_seconds": 60
+  }
+}
