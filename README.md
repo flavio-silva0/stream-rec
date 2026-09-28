@@ -35,35 +35,35 @@ Para atender à necessidade de alta escalabilidade e reduzir a sobrecarga direta
 
 ```mermaid
 flowchart TD
-    Client["📱 Cliente HTTP / Frontend / Swagger UI"]
+    Client["Cliente HTTP / Frontend / Swagger UI"]
     
-    subgraph AppServer ["Aplicação Python (FastAPI)"]
-        Router["Rotas REST (/users, /movies, /recommendations, /cache)"]
-        Service["RecommendationService (Orquestrador de Cache-Aside)"]
-        Repo["Repositórios Cypher (Neo4j Driver)"]
+    subgraph AppServer ["Aplicação Python - FastAPI"]
+        Router["Rotas REST"]
+        Service["RecommendationService - Cache-Aside"]
+        Repo["Repositórios Cypher - Neo4j Driver"]
     end
     
     subgraph CacheLayer ["Camada de Cache"]
-        Redis[("⚡ Redis 7 In-Memory\nChaves: rec:user:ID:strategy\nTTL: 60 segundos")]
+        Redis[("Redis In-Memory Cache<br/>TTL: 60s")]
     end
     
-    subgraph GraphDB ["Camada de Dados Persistentes"]
-        Neo4j[("🕸️ Neo4j 5 Graph DB\nNós: User, Movie, Genre\nRelacionamentos: WATCHED, RATED, BELONGS_TO")]
+    subgraph GraphDB ["Banco de Grafos"]
+        Neo4j[("Neo4j Graph Database<br/>Nodes & Relationships")]
     end
     
-    Client -->|1. GET /recommendations/{id}| Router
+    Client -->|"1. GET /recommendations/:user_id"| Router
     Router --> Service
-    Service -->|2. Verifica Chave| Redis
-    Redis -.->|3a. CACHE HIT: Retorna Recomendações (0.5ms)| Service
-    Service -->|3b. CACHE MISS: Consulta Trajetórias no Grafo| Repo
+    Service -->|"2. Consulta Chave"| Redis
+    Redis -.->|"3a. CACHE HIT (0.5ms)"| Service
+    Service -->|"3b. CACHE MISS"| Repo
     Repo --> Neo4j
-    Neo4j -->|4. Retorna Subgrafo e Scores| Repo
+    Neo4j -->|"4. Subgrafo & Scores"| Repo
     Repo --> Service
-    Service -->|5. Salva no Redis com TTL| Redis
-    Service -->|6. Retorna Payload + Header X-Cache| Client
+    Service -->|"5. Salva com TTL"| Redis
+    Service -->|"6. Resposta + Header X-Cache"| Client
     
-    Client -->|7. POST /users/{id}/ratings ou watched| Router
-    Router -->|8. Invalida Cache rec:user:ID:*| Redis
+    Client -->|"7. POST /users/:id/ratings ou watched"| Router
+    Router -->|"8. Invalida Cache"| Redis
 ```
 
 ---
