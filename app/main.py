@@ -10,10 +10,10 @@ from app.database.redis_client import redis_client
 from app.core.seeder import seed_database
 from app.repositories.movie_repo import movie_repo
 from app.routers import (
+    recommendations_router,
     users_router,
     movies_router,
     genres_router,
-    recommendations_router,
     cache_router,
     health_router
 )
@@ -24,6 +24,33 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger("streamrec.main")
+
+tags_metadata = [
+    {
+        "name": "Recomendações",
+        "description": "Motor de recomendação personalizada com algoritmos de grafos no Neo4j (Colaborativa, Afinidade por Gênero, Trending e Híbrida) e aceleração de cache Redis com TTL.",
+    },
+    {
+        "name": "Usuários",
+        "description": "Cadastro de usuários e registro de interações (filmes assistidos e avaliações de 1.0 a 5.0) com invalidação automática de cache.",
+    },
+    {
+        "name": "Filmes",
+        "description": "Gerenciamento do catálogo de filmes cinematográficos e consulta de avaliações médias.",
+    },
+    {
+        "name": "Gêneros",
+        "description": "Gerenciamento de gêneros de filmes no grafo do Neo4j.",
+    },
+    {
+        "name": "Cache Redis",
+        "description": "Monitoramento em tempo real de CACHE HIT / MISS, taxa de acerto (%) e expurgo manual de chaves.",
+    },
+    {
+        "name": "Sistema & Saúde",
+        "description": "Diagnóstico de conectividade com Neo4j/Redis e inicializador de dados de demonstração.",
+    },
+]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,6 +79,7 @@ app = FastAPI(
     description=settings.DESCRIPTION,
     version=settings.VERSION,
     lifespan=lifespan,
+    openapi_tags=tags_metadata,
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -65,13 +93,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrar Rotas
-app.include_router(health_router)
+# Registrar Rotas priorizando o core de negócio
+app.include_router(recommendations_router)
 app.include_router(users_router)
 app.include_router(movies_router)
 app.include_router(genres_router)
-app.include_router(recommendations_router)
 app.include_router(cache_router)
+app.include_router(health_router)
 
 @app.get("/", include_in_schema=False)
 async def root():

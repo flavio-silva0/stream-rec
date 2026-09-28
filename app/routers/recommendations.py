@@ -1,5 +1,5 @@
 from typing import Optional, Literal
-from fastapi import APIRouter, Query, Response, HTTPException, status
+from fastapi import APIRouter, Query, Path, Response, HTTPException, status
 from app.models.schemas import RecommendationResponse
 from app.services.recommendation_service import recommendation_service
 from app.repositories.user_repo import user_repo
@@ -24,8 +24,12 @@ router = APIRouter(prefix="/recommendations", tags=["Recomendações"])
     """
 )
 async def get_user_recommendations(
-    user_id: str,
     response: Response,
+    user_id: str = Path(
+        ...,
+        examples=["user-carlos"],
+        description="ID do usuário para o qual gerar recomendações (ex: user-carlos, user-beatriz, user-daniel, user-elena)"
+    ),
     strategy: Literal["hybrid", "collaborative", "genre", "trending"] = Query(
         "hybrid",
         description="Estratégia do algoritmo de recomendação"

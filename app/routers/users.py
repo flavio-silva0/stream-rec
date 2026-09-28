@@ -1,6 +1,6 @@
 import logging
 from typing import List
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Path, status
 from app.models.schemas import (
     UserCreate, UserResponse, UserDetailResponse,
     WatchedCreate, WatchedResponse, RatingCreate, RatingResponse
@@ -29,7 +29,9 @@ async def list_users():
     return await user_repo.list_users()
 
 @router.get("/{user_id}", response_model=UserDetailResponse, summary="Obter detalhes do usuário")
-async def get_user_details(user_id: str):
+async def get_user_details(
+    user_id: str = Path(..., examples=["user-carlos"], description="ID do usuário (ex: user-carlos, user-beatriz)")
+):
     """
     Retorna o perfil completo do usuário, incluindo lista de filmes assistidos e avaliações realizadas.
     """
@@ -42,7 +44,10 @@ async def get_user_details(user_id: str):
     return user
 
 @router.post("/{user_id}/watched", response_model=WatchedResponse, status_code=status.HTTP_201_CREATED, summary="Registrar filme assistido")
-async def record_watched(user_id: str, watched_in: WatchedCreate):
+async def record_watched(
+    watched_in: WatchedCreate,
+    user_id: str = Path(..., examples=["user-carlos"], description="ID do usuário que assistiu ao filme")
+):
     """
     Registra que o usuário assistiu a um filme no Neo4j criando a relação `(:User)-[:WATCHED]->(:Movie)`.
     **Importante**: Esta ação invalida automaticamente o cache de recomendações deste usuário no Redis.
@@ -61,7 +66,10 @@ async def record_watched(user_id: str, watched_in: WatchedCreate):
     return res
 
 @router.post("/{user_id}/ratings", response_model=RatingResponse, status_code=status.HTTP_201_CREATED, summary="Registrar avaliação de filme")
-async def record_rating(user_id: str, rating_in: RatingCreate):
+async def record_rating(
+    rating_in: RatingCreate,
+    user_id: str = Path(..., examples=["user-carlos"], description="ID do usuário que está avaliando o filme")
+):
     """
     Registra uma avaliação (nota de 1.0 a 5.0 e comentário opcional) no Neo4j `(:User)-[:RATED]->(:Movie)`.
     **Importante**: Esta ação invalida automaticamente o cache de recomendações deste usuário no Redis,

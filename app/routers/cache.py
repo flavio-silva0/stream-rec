@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Path
 from app.database.redis_client import redis_client
 from app.services.recommendation_service import recommendation_service
 from app.models.schemas import CacheStatsResponse, CacheInvalidateResponse
@@ -14,7 +14,9 @@ async def get_cache_stats():
     return CacheStatsResponse(**stats)
 
 @router.delete("/user/{user_id}", response_model=CacheInvalidateResponse, summary="Invalidar cache de um usuário")
-async def invalidate_user_cache(user_id: str):
+async def invalidate_user_cache(
+    user_id: str = Path(..., examples=["user-carlos"], description="ID do usuário para purgar o cache de recomendações")
+):
     """
     Remove manualmente todas as recomendações armazenadas em cache para o usuário especificado.
     """
